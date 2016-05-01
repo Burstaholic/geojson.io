@@ -1,4 +1,6 @@
 var geojsonhint = require('geojsonhint');
+var rp = require('reproject');
+var defs = require('../../node_modules/reproject/crs-defs.json');
 
 module.exports = function(callback) {
     return function(editor, changeObj) {
@@ -24,6 +26,13 @@ module.exports = function(callback) {
                 changeObj.origin == 'paste';
 
             var gj = JSON.parse(editor.getValue());
+
+            try {
+                gj = rp.toWgs84(gj, undefined, defs);
+            }
+            catch(e) {
+                console.warn('Could not detect CRS, assuming WGS84');
+            }
 
             try {
                 return callback(null, gj, zoom);
