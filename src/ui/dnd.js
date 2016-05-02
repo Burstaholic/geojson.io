@@ -1,6 +1,8 @@
 var readDrop = require('../lib/readfile.js').readDrop,
     flash = require('./flash.js'),
-    zoomextent = require('../lib/zoomextent');
+    zoomextent = require('../lib/zoomextent'),
+    rp = require('reproject'),
+    defs = require('../../node_modules/reproject/crs-defs.json');
 
 module.exports = function(context) {
     d3.select('body')
@@ -11,6 +13,13 @@ module.exports = function(context) {
                     .classed('error', 'true');
             }
             if (gj && gj.features) {
+                try {
+                    gj = rp.toWgs84(gj, undefined, defs);
+                }
+                catch(e) {
+                    console.warn(e.message);
+                    console.warn('Could not determine CRS, assuming WGS84');
+                }
                 context.data.mergeFeatures(gj.features);
                 if (warning) {
                     flash(context.container, warning.message);
