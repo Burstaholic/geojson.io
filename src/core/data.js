@@ -11,6 +11,12 @@ function _getData() {
     return {
         map: {
             type: 'FeatureCollection',
+            crs: {
+                properties: {
+                    name: "EPSG:4326"
+                },
+                type: "name"
+            },
             features: []
         },
         dirty: false,

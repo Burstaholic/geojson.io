@@ -1,7 +1,9 @@
 var importSupport = !!(window.FileReader),
     flash = require('./flash.js'),
     readFile = require('../lib/readfile.js'),
-    zoomextent = require('../lib/zoomextent');
+    zoomextent = require('../lib/zoomextent'),
+    rp = require('reproject'),
+    defs = require('../../node_modules/reproject/crs-defs.json');
 
 module.exports = function(context) {
     return function(selection) {
@@ -68,6 +70,13 @@ module.exports = function(context) {
                         .classed('error', 'true');
                 }
             } else if (gj && gj.features) {
+                try {
+                    gj = rp.toWgs84(gj, undefined, defs);
+                }
+                catch(e) {
+                    console.warn(e.message);
+                    console.warn('Could not determine CRS, assuming WGS84');
+                }
                 context.data.mergeFeatures(gj.features);
                 if (warning) {
                     flash(context.container, warning.message);

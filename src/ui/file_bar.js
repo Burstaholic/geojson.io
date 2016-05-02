@@ -7,7 +7,9 @@ var shpwrite = require('shp-write'),
     githubBrowser = require('github-file-browser'),
     gistBrowser = require('gist-map-browser'),
     geojsonNormalize = require('geojson-normalize'),
-    wellknown = require('wellknown');
+    wellknown = require('wellknown'),
+    rp = require('reproject'),
+    defs = require('../../node_modules/reproject/crs-defs.json');
 
 var share = require('./share'),
     modal = require('./modal.js'),
@@ -413,6 +415,13 @@ module.exports = function fileBar(context) {
         function onImport(err, gj, warning) {
             gj = geojsonNormalize(gj);
             if (gj) {
+                try {
+                    gj = rp.toWgs84(gj, undefined, defs);
+                }
+                catch(e) {
+                    console.warn(e.message);
+                    console.warn('Could not determine CRS, assuming WGS84');
+                }
                 context.data.mergeFeatures(gj.features);
                 if (warning) {
                     flash(context.container, warning.message);
