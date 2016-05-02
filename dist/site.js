@@ -30534,6 +30534,12 @@ function _getData() {
     return {
         map: {
             type: 'FeatureCollection',
+            crs: {
+                properties: {
+                    name: "EPSG:4326"
+                },
+                type: "name"
+            },
             features: []
         },
         dirty: false,
@@ -31556,7 +31562,8 @@ module.exports = function(callback) {
                 gj = rp.toWgs84(gj, undefined, defs);
             }
             catch(e) {
-                console.warn('Could not detect CRS, assuming WGS84');
+                console.warn(e.message);
+                console.warn('Could not determine CRS, assuming WGS84');
             }
 
             try {
@@ -32118,7 +32125,9 @@ function ui(context) {
 },{"./ui/dnd":238,"./ui/file_bar":239,"./ui/layer_switch":241,"./ui/mode_buttons":245,"./ui/user":248}],238:[function(require,module,exports){
 var readDrop = require('../lib/readfile.js').readDrop,
     flash = require('./flash.js'),
-    zoomextent = require('../lib/zoomextent');
+    zoomextent = require('../lib/zoomextent'),
+    rp = require('reproject'),
+    defs = require('../../node_modules/reproject/crs-defs.json');
 
 module.exports = function(context) {
     d3.select('body')
@@ -32129,6 +32138,13 @@ module.exports = function(context) {
                     .classed('error', 'true');
             }
             if (gj && gj.features) {
+                try {
+                    gj = rp.toWgs84(gj, undefined, defs);
+                }
+                catch(e) {
+                    console.warn(e.message);
+                    console.warn('Could not determine CRS, assuming WGS84');
+                }
                 context.data.mergeFeatures(gj.features);
                 if (warning) {
                     flash(context.container, warning.message);
@@ -32159,7 +32175,7 @@ module.exports = function(context) {
     }
 };
 
-},{"../lib/readfile.js":227,"../lib/zoomextent":230,"./flash.js":240}],239:[function(require,module,exports){
+},{"../../node_modules/reproject/crs-defs.json":157,"../lib/readfile.js":227,"../lib/zoomextent":230,"./flash.js":240,"reproject":158}],239:[function(require,module,exports){
 var shpwrite = require('shp-write'),
     clone = require('clone'),
     geojson2dsv = require('geojson2dsv'),
@@ -32169,7 +32185,9 @@ var shpwrite = require('shp-write'),
     githubBrowser = require('github-file-browser'),
     gistBrowser = require('gist-map-browser'),
     geojsonNormalize = require('geojson-normalize'),
-    wellknown = require('wellknown');
+    wellknown = require('wellknown'),
+    rp = require('reproject'),
+    defs = require('../../node_modules/reproject/crs-defs.json');
 
 var share = require('./share'),
     modal = require('./modal.js'),
@@ -32575,6 +32593,13 @@ module.exports = function fileBar(context) {
         function onImport(err, gj, warning) {
             gj = geojsonNormalize(gj);
             if (gj) {
+                try {
+                    gj = rp.toWgs84(gj, undefined, defs);
+                }
+                catch(e) {
+                    console.warn(e.message);
+                    console.warn('Could not determine CRS, assuming WGS84');
+                }
                 context.data.mergeFeatures(gj.features);
                 if (warning) {
                     flash(context.container, warning.message);
@@ -32662,7 +32687,7 @@ module.exports = function fileBar(context) {
     return bar;
 };
 
-},{"../config.js":215,"../lib/meta.js":225,"../lib/readfile":227,"../lib/zoomextent":230,"../ui/saver.js":246,"./flash":240,"./modal.js":244,"./share":247,"clone":8,"filesaver.js":19,"geojson-normalize":25,"geojson2dsv":29,"gist-map-browser":32,"github-file-browser":33,"shp-write":160,"tokml":175,"topojson":"BOmyIj","wellknown":212}],240:[function(require,module,exports){
+},{"../../node_modules/reproject/crs-defs.json":157,"../config.js":215,"../lib/meta.js":225,"../lib/readfile":227,"../lib/zoomextent":230,"../ui/saver.js":246,"./flash":240,"./modal.js":244,"./share":247,"clone":8,"filesaver.js":19,"geojson-normalize":25,"geojson2dsv":29,"gist-map-browser":32,"github-file-browser":33,"reproject":158,"shp-write":160,"tokml":175,"topojson":"BOmyIj","wellknown":212}],240:[function(require,module,exports){
 var message = require('./message');
 
 module.exports = flash;
