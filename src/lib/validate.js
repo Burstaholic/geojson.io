@@ -31,7 +31,8 @@ module.exports = function(callback) {
                 gj = rp.toWgs84(gj, undefined, defs);
             }
             catch(e) {
-                console.warn('Could not detect CRS, assuming WGS84');
+                console.warn(e.message);
+                console.warn('Could not determine CRS, assuming WGS84');
             }
 
             try {
